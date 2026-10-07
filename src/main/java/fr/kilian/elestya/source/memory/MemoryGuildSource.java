@@ -1,19 +1,11 @@
 package fr.kilian.elestya.source.memory;
 
 import fr.kilian.elestya.api.GuildSource;
-import fr.kilian.elestya.api.domain.Guild;
-import fr.kilian.elestya.api.domain.GuildMember;
-import fr.kilian.elestya.api.domain.GuildRank;
+import fr.kilian.elestya.api.domain.*;
 import fr.kilian.elestya.api.result.ActionResult;
 import org.bukkit.Bukkit;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 public class MemoryGuildSource implements GuildSource {
 
@@ -21,6 +13,12 @@ public class MemoryGuildSource implements GuildSource {
 
     public MemoryGuildSource() {
         new MemoryGuildSeeder(this).seed();
+    }
+
+    void addGuild(Guild guild) {
+        Objects.requireNonNull(guild, "guild cannot be null");
+
+        guilds.put(guild.id(), guild);
     }
 
     @Override
@@ -57,18 +55,24 @@ public class MemoryGuildSource implements GuildSource {
         Objects.requireNonNull(name, "name cannot be null");
 
         if (findGuildByPlayer(playerId).isPresent()) {
-            return ActionResult.failure("You already have a guild.");
+            return ActionResult.failure(
+                    "Vous êtes déjà membre d'une guilde."
+            );
         }
 
         if (name.isBlank()) {
-            return ActionResult.failure("Guild name cannot be empty.");
+            return ActionResult.failure(
+                    "Le nom de la guilde ne peut pas être vide."
+            );
         }
 
         if (guilds.containsKey(name)) {
-            return ActionResult.failure("A guild with this name already exists.");
+            return ActionResult.failure(
+                    "Une guilde avec ce nom existe déjà."
+            );
         }
 
-        String playerName = Bukkit.getOfflinePlayer(playerId).getName();
+        String playerName = getPlayerName(playerId);
 
         List<GuildMember> members = new ArrayList<>();
 
@@ -91,7 +95,9 @@ public class MemoryGuildSource implements GuildSource {
 
         guilds.put(guild.id(), guild);
 
-        return ActionResult.success("Guild created successfully.");
+        return ActionResult.success(
+                "La guilde a été créée avec succès."
+        );
     }
 
     @Override
@@ -103,18 +109,22 @@ public class MemoryGuildSource implements GuildSource {
         Optional<Guild> optionalGuild = findGuildById(guildId);
 
         if (optionalGuild.isEmpty()) {
-            return ActionResult.failure("This guild doesn't exist.");
+            return ActionResult.failure(
+                    "Cette guilde n'existe pas."
+            );
         }
 
         if (findGuildByPlayer(playerId).isPresent()) {
-            return ActionResult.failure("You are already in a guild.");
+            return ActionResult.failure(
+                    "Vous êtes déjà membre d'une guilde."
+            );
         }
 
         Guild guild = optionalGuild.get();
 
         if (guild.hasJoinRequest(playerId)) {
             return ActionResult.failure(
-                    "You have already requested to join this guild."
+                    "Vous avez déjà envoyé une demande à cette guilde."
             );
         }
 
@@ -128,14 +138,14 @@ public class MemoryGuildSource implements GuildSource {
 
         if (requests >= 5) {
             return ActionResult.failure(
-                    "You already have 5 pending guild requests."
+                    "Vous avez déjà 5 demandes d'adhésion en attente."
             );
         }
 
         guild.joinRequests().add(playerId);
 
         return ActionResult.success(
-                "You requested to join " + guild.name() + "."
+                "Votre demande pour rejoindre " + guild.name() + " a été envoyée."
         );
     }
 
@@ -148,20 +158,22 @@ public class MemoryGuildSource implements GuildSource {
         Optional<Guild> optionalGuild = findGuildByPlayer(actorId);
 
         if (optionalGuild.isEmpty()) {
-            return ActionResult.failure("You don't have a guild.");
+            return ActionResult.failure(
+                    "Vous n'êtes membre d'aucune guilde."
+            );
         }
 
         Guild guild = optionalGuild.get();
 
-        if (!guild.ownerId().equals(actorId)) {
+        if (!guild.hasPermission(actorId, GuildPermission.RECRUIT)) {
             return ActionResult.failure(
-                    "You are not the owner of this guild."
+                    "Vous n'avez pas la permission de gérer les recrutements."
             );
         }
 
         if (!guild.hasJoinRequest(playerId)) {
             return ActionResult.failure(
-                    "This player didn't request to join your guild."
+                    "Ce joueur n'a pas demandé à rejoindre votre guilde."
             );
         }
 
@@ -170,26 +182,30 @@ public class MemoryGuildSource implements GuildSource {
             guild.joinRequests().remove(playerId);
 
             return ActionResult.failure(
-                    "This player is already in another guild."
+                    "Ce joueur appartient déjà à une autre guilde."
             );
         }
 
-        String playerName = Bukkit.getOfflinePlayer(playerId).getName();
+        String playerName = getPlayerName(playerId);
 
         guild.members().add(
                 new GuildMember(
                         playerId,
                         playerName,
-                        GuildRank.MEMBER
+                        GuildRank.RECRUIT
                 )
         );
 
+        /*
+         * Une fois le joueur accepté dans une guilde,
+         * toutes ses autres demandes sont supprimées.
+         */
         for (Guild existingGuild : guilds.values()) {
             existingGuild.joinRequests().remove(playerId);
         }
 
         return ActionResult.success(
-                playerName + " joined your guild."
+                playerName + " a rejoint votre guilde en tant que recrue."
         );
     }
 
@@ -202,29 +218,31 @@ public class MemoryGuildSource implements GuildSource {
         Optional<Guild> optionalGuild = findGuildByPlayer(actorId);
 
         if (optionalGuild.isEmpty()) {
-            return ActionResult.failure("You don't have a guild.");
+            return ActionResult.failure(
+                    "Vous n'êtes membre d'aucune guilde."
+            );
         }
 
         Guild guild = optionalGuild.get();
 
-        if (!guild.ownerId().equals(actorId)) {
+        if (!guild.hasPermission(actorId, GuildPermission.RECRUIT)) {
             return ActionResult.failure(
-                    "You are not the owner of this guild."
+                    "Vous n'avez pas la permission de gérer les recrutements."
             );
         }
 
         if (!guild.hasJoinRequest(playerId)) {
             return ActionResult.failure(
-                    "This player didn't request to join your guild."
+                    "Ce joueur n'a pas demandé à rejoindre votre guilde."
             );
         }
 
-        String playerName = Bukkit.getOfflinePlayer(playerId).getName();
+        String playerName = getPlayerName(playerId);
 
         guild.joinRequests().remove(playerId);
 
         return ActionResult.success(
-                "You rejected " + playerName + "'s join request."
+                "La demande de " + playerName + " a été refusée."
         );
     }
 
@@ -236,14 +254,16 @@ public class MemoryGuildSource implements GuildSource {
         Optional<Guild> optionalGuild = findGuildByPlayer(playerId);
 
         if (optionalGuild.isEmpty()) {
-            return ActionResult.failure("You don't have a guild.");
+            return ActionResult.failure(
+                    "Vous n'êtes membre d'aucune guilde."
+            );
         }
 
         Guild guild = optionalGuild.get();
 
         if (guild.ownerId().equals(playerId)) {
             return ActionResult.failure(
-                    "The guild owner cannot leave the guild."
+                    "Le chef ne peut pas quitter sa guilde."
             );
         }
 
@@ -251,14 +271,14 @@ public class MemoryGuildSource implements GuildSource {
 
         if (optionalMember.isEmpty()) {
             return ActionResult.failure(
-                    "You are not a member of this guild."
+                    "Vous n'êtes pas membre de cette guilde."
             );
         }
 
         guild.members().remove(optionalMember.get());
 
         return ActionResult.success(
-                "You left " + guild.name() + "."
+                "Vous avez quitté la guilde " + guild.name() + "."
         );
     }
 
@@ -269,7 +289,7 @@ public class MemoryGuildSource implements GuildSource {
 
         if (amount <= 0) {
             return ActionResult.failure(
-                    "The amount must be greater than 0."
+                    "Le montant doit être supérieur à 0."
             );
         }
 
@@ -277,7 +297,7 @@ public class MemoryGuildSource implements GuildSource {
 
         if (optionalGuild.isEmpty()) {
             return ActionResult.failure(
-                    "You don't have a guild."
+                    "Vous n'êtes membre d'aucune guilde."
             );
         }
 
@@ -288,7 +308,7 @@ public class MemoryGuildSource implements GuildSource {
         );
 
         return ActionResult.success(
-                "You deposited " + amount + " into the guild bank."
+                "Vous avez déposé " + amount + " dans la banque de la guilde."
         );
     }
 
@@ -299,7 +319,7 @@ public class MemoryGuildSource implements GuildSource {
 
         if (amount <= 0) {
             return ActionResult.failure(
-                    "The amount must be greater than 0."
+                    "Le montant doit être supérieur à 0."
             );
         }
 
@@ -307,34 +327,24 @@ public class MemoryGuildSource implements GuildSource {
 
         if (optionalGuild.isEmpty()) {
             return ActionResult.failure(
-                    "You don't have a guild."
+                    "Vous n'êtes membre d'aucune guilde."
             );
         }
 
         Guild guild = optionalGuild.get();
 
-        Optional<GuildMember> optionalMember = guild.findMember(playerId);
-
-        if (optionalMember.isEmpty()) {
+        if (!guild.hasPermission(
+                playerId,
+                GuildPermission.BANK_AND_UPGRADES
+        )) {
             return ActionResult.failure(
-                    "You are not a member of this guild."
-            );
-        }
-
-        GuildMember member = optionalMember.get();
-
-        if (
-                member.rank() != GuildRank.OWNER
-                        && member.rank() != GuildRank.OFFICER
-        ) {
-            return ActionResult.failure(
-                    "You don't have permission to withdraw money."
+                    "Vous n'avez pas la permission de retirer de l'argent."
             );
         }
 
         if (guild.balance() < amount) {
             return ActionResult.failure(
-                    "The guild doesn't have enough money."
+                    "La banque de la guilde ne contient pas assez d'argent."
             );
         }
 
@@ -343,7 +353,7 @@ public class MemoryGuildSource implements GuildSource {
         );
 
         return ActionResult.success(
-                "You withdrew " + amount + " from the guild bank."
+                "Vous avez retiré " + amount + " de la banque de la guilde."
         );
     }
 
@@ -357,15 +367,20 @@ public class MemoryGuildSource implements GuildSource {
 
         if (optionalGuild.isEmpty()) {
             return ActionResult.failure(
-                    "You don't have a guild."
+                    "Vous n'êtes membre d'aucune guilde."
             );
         }
 
         Guild guild = optionalGuild.get();
 
+        /*
+         * Aucune permission spécifique pour les rangs n'a été
+         * indiquée dans les règles reçues.
+         * Pour le moment, seul le chef peut les modifier.
+         */
         if (!guild.ownerId().equals(actorId)) {
             return ActionResult.failure(
-                    "Only the guild owner can promote members."
+                    "Seul le chef peut modifier le rang des membres."
             );
         }
 
@@ -373,7 +388,7 @@ public class MemoryGuildSource implements GuildSource {
 
         if (optionalTarget.isEmpty()) {
             return ActionResult.failure(
-                    "This player is not a member of your guild."
+                    "Ce joueur n'est pas membre de votre guilde."
             );
         }
 
@@ -381,28 +396,30 @@ public class MemoryGuildSource implements GuildSource {
 
         if (target.rank() == GuildRank.OWNER) {
             return ActionResult.failure(
-                    "The guild owner cannot be promoted."
+                    "Le chef ne peut pas être promu."
             );
         }
 
-        if (target.rank() == GuildRank.OFFICER) {
+        GuildRank nextRank;
+
+        if (target.rank() == GuildRank.RECRUIT) {
+            nextRank = GuildRank.MEMBER;
+        } else if (target.rank() == GuildRank.MEMBER) {
+            nextRank = GuildRank.DEPUTY;
+        } else {
             return ActionResult.failure(
-                    "This member is already an officer."
+                    "Ce membre possède déjà le rang maximum disponible."
             );
         }
 
-        GuildMember promoted = new GuildMember(
-                target.playerId(),
-                target.name(),
-                GuildRank.OFFICER
+        replaceMemberRank(
+                guild,
+                target,
+                nextRank
         );
 
-        int index = guild.members().indexOf(target);
-
-        guild.members().set(index, promoted);
-
         return ActionResult.success(
-                target.name() + " has been promoted to officer."
+                target.name() + " a été promu au rang " + getRankName(nextRank) + "."
         );
     }
 
@@ -416,7 +433,7 @@ public class MemoryGuildSource implements GuildSource {
 
         if (optionalGuild.isEmpty()) {
             return ActionResult.failure(
-                    "You don't have a guild."
+                    "Vous n'êtes membre d'aucune guilde."
             );
         }
 
@@ -424,7 +441,7 @@ public class MemoryGuildSource implements GuildSource {
 
         if (!guild.ownerId().equals(actorId)) {
             return ActionResult.failure(
-                    "Only the guild owner can demote members."
+                    "Seul le chef peut modifier le rang des membres."
             );
         }
 
@@ -432,7 +449,7 @@ public class MemoryGuildSource implements GuildSource {
 
         if (optionalTarget.isEmpty()) {
             return ActionResult.failure(
-                    "This player is not a member of your guild."
+                    "Ce joueur n'est pas membre de votre guilde."
             );
         }
 
@@ -440,28 +457,31 @@ public class MemoryGuildSource implements GuildSource {
 
         if (target.rank() == GuildRank.OWNER) {
             return ActionResult.failure(
-                    "The guild owner cannot be demoted."
+                    "Le chef ne peut pas être rétrogradé."
             );
         }
 
-        if (target.rank() == GuildRank.MEMBER) {
+        GuildRank previousRank;
+
+        if (target.rank() == GuildRank.DEPUTY) {
+            previousRank = GuildRank.MEMBER;
+        } else if (target.rank() == GuildRank.MEMBER) {
+            previousRank = GuildRank.RECRUIT;
+        } else {
             return ActionResult.failure(
-                    "This player already has the lowest rank."
+                    "Ce membre possède déjà le rang le plus bas."
             );
         }
 
-        GuildMember demoted = new GuildMember(
-                target.playerId(),
-                target.name(),
-                GuildRank.MEMBER
+        replaceMemberRank(
+                guild,
+                target,
+                previousRank
         );
 
-        int index = guild.members().indexOf(target);
-
-        guild.members().set(index, demoted);
-
         return ActionResult.success(
-                target.name() + " has been demoted to member."
+                target.name() + " a été rétrogradé au rang "
+                        + getRankName(previousRank) + "."
         );
     }
 
@@ -475,21 +495,21 @@ public class MemoryGuildSource implements GuildSource {
 
         if (optionalGuild.isEmpty()) {
             return ActionResult.failure(
-                    "You don't have a guild."
+                    "Vous n'êtes membre d'aucune guilde."
             );
         }
 
         Guild guild = optionalGuild.get();
 
-        if (!guild.ownerId().equals(actorId)) {
+        if (!guild.hasPermission(actorId, GuildPermission.KICK)) {
             return ActionResult.failure(
-                    "Only the guild owner can kick members."
+                    "Vous n'avez pas la permission d'expulser des membres."
             );
         }
 
         if (actorId.equals(targetId)) {
             return ActionResult.failure(
-                    "You cannot kick yourself."
+                    "Vous ne pouvez pas vous expulser vous-même."
             );
         }
 
@@ -497,7 +517,7 @@ public class MemoryGuildSource implements GuildSource {
 
         if (optionalTarget.isEmpty()) {
             return ActionResult.failure(
-                    "This player is not a member of your guild."
+                    "Ce joueur n'est pas membre de votre guilde."
             );
         }
 
@@ -505,19 +525,166 @@ public class MemoryGuildSource implements GuildSource {
 
         if (target.rank() == GuildRank.OWNER) {
             return ActionResult.failure(
-                    "The guild owner cannot be kicked."
+                    "Le chef ne peut pas être expulsé."
             );
         }
 
         guild.members().remove(target);
 
         return ActionResult.success(
-                target.name() + " has been kicked from the guild."
+                target.name() + " a été expulsé de la guilde."
         );
     }
 
-    void addGuild(Guild guild) {
-        Objects.requireNonNull(guild, "guild cannot be null");
-        guilds.put(guild.id(), guild);
+    @Override
+    public Set<GuildPermission> getPermissions(
+            String guildId,
+            GuildRank rank
+    ) {
+
+        Objects.requireNonNull(guildId, "guildId cannot be null");
+        Objects.requireNonNull(rank, "rank cannot be null");
+
+        Optional<Guild> optionalGuild = findGuildById(guildId);
+
+        if (optionalGuild.isEmpty()) {
+            return Set.of();
+        }
+
+        return optionalGuild.get().getPermissions(rank);
+    }
+
+    @Override
+    public boolean hasPermission(
+            UUID playerId,
+            GuildPermission permission
+    ) {
+
+        Objects.requireNonNull(playerId, "playerId cannot be null");
+        Objects.requireNonNull(permission, "permission cannot be null");
+
+        Optional<Guild> optionalGuild = findGuildByPlayer(playerId);
+
+        if (optionalGuild.isEmpty()) {
+            return false;
+        }
+
+        return optionalGuild.get().hasPermission(
+                playerId,
+                permission
+        );
+    }
+
+    @Override
+    public ActionResult setPermission(
+            UUID actorId,
+            GuildRank rank,
+            GuildPermission permission,
+            boolean enabled
+    ) {
+
+        Objects.requireNonNull(actorId, "actorId cannot be null");
+        Objects.requireNonNull(rank, "rank cannot be null");
+        Objects.requireNonNull(permission, "permission cannot be null");
+
+        Optional<Guild> optionalGuild = findGuildByPlayer(actorId);
+
+        if (optionalGuild.isEmpty()) {
+            return ActionResult.failure(
+                    "Vous n'êtes membre d'aucune guilde."
+            );
+        }
+
+        Guild guild = optionalGuild.get();
+
+        if (!guild.ownerId().equals(actorId)) {
+            return ActionResult.failure(
+                    "Seul le chef peut modifier les permissions des rangs."
+            );
+        }
+
+        if (rank == GuildRank.OWNER) {
+            return ActionResult.failure(
+                    "Les permissions du chef ne peuvent pas être modifiées."
+            );
+        }
+
+        guild.setPermission(
+                rank,
+                permission,
+                enabled
+        );
+
+        String state = enabled
+                ? "activée"
+                : "désactivée";
+
+        return ActionResult.success(
+                "Permission " + state
+                        + " pour le rang "
+                        + getRankName(rank) + "."
+        );
+    }
+
+    private void replaceMemberRank(
+            Guild guild,
+            GuildMember member,
+            GuildRank newRank
+    ) {
+
+        int index = guild.members().indexOf(member);
+
+        GuildMember updatedMember = new GuildMember(
+                member.playerId(),
+                member.name(),
+                newRank
+        );
+
+        guild.members().set(
+                index,
+                updatedMember
+        );
+    }
+
+    @Override
+    public List<JoinRequest> getJoinRequests(String guildId) {
+
+        Objects.requireNonNull(guildId, "guildId cannot be null");
+
+        Optional<Guild> optionalGuild = findGuildById(guildId);
+
+        if (optionalGuild.isEmpty()) {
+            return List.of();
+        }
+
+        return optionalGuild.get()
+                .joinRequests()
+                .stream()
+                .map(playerId -> new JoinRequest(
+                        playerId,
+                        getPlayerName(playerId)
+                ))
+                .toList();
+    }
+
+    private String getPlayerName(UUID playerId) {
+
+        String name = Bukkit.getOfflinePlayer(playerId).getName();
+
+        if (name != null) {
+            return name;
+        }
+
+        return playerId.toString();
+    }
+
+    private String getRankName(GuildRank rank) {
+
+        return switch (rank) {
+            case OWNER -> "Chef";
+            case DEPUTY -> "Adjoint";
+            case MEMBER -> "Membre";
+            case RECRUIT -> "Recrue";
+        };
     }
 }

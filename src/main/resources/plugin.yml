@@ -11,4 +11,6 @@ commands:
   form:
     description: show form
 
-depend: ["Geyser-Spigot"]
+depend:
+  - Geyser-Spigot
+  - floodgate

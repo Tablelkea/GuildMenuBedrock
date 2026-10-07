@@ -8,12 +8,12 @@ public record GuildMember(
         GuildRank rank
 ) {
 
-    public boolean isOwner(){
+    public boolean isOwner() {
         return rank.equals(GuildRank.OWNER);
     }
 
-    public boolean isOfficer(){
-        return rank.equals(GuildRank.OFFICER);
+    public boolean isDeputy() {
+        return rank.equals(GuildRank.DEPUTY);
     }
 
 }

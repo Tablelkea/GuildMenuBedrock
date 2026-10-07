@@ -4,6 +4,6 @@ import java.util.UUID;
 
 public record JoinRequest(
         UUID playerId,
-        String guildId
+        String playerName
 ) {
 }

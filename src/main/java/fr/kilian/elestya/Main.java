@@ -1,32 +1,59 @@
 package fr.kilian.elestya;
 
+import fr.kilian.elestya.api.GuildSource;
+import fr.kilian.elestya.command.GuildMenuCommand;
+import fr.kilian.elestya.menu.FormService;
+import fr.kilian.elestya.menu.guild.GuildMenuService;
+import fr.kilian.elestya.source.memory.MemoryGuildSource;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.geysermc.event.subscribe.Subscribe;
 import org.geysermc.floodgate.api.FloodgateApi;
-import org.geysermc.geyser.api.GeyserApi;
-import org.geysermc.geyser.api.event.EventRegistrar;
-import org.geysermc.geyser.api.event.lifecycle.GeyserPostInitializeEvent;
 
-public final class Main extends JavaPlugin implements EventRegistrar {
+import java.util.Objects;
+
+public final class Main extends JavaPlugin {
+
+    private GuildSource guildSource;
+    private FormService formService;
+    private GuildMenuService guildMenuService;
+
+    private FloodgateApi api;
 
     @Override
     public void onEnable() {
-        // Plugin startup logic
 
-        FloodgateApi api = FloodgateApi.getInstance();
+        api = FloodgateApi.getInstance();
 
-        getLogger().info("Registering Geyser event bus!");
-        GeyserApi.api().eventBus().register(this, this);
+        guildSource = new MemoryGuildSource();
+        formService = new FormService(api);
 
+        guildMenuService = new GuildMenuService(
+                guildSource,
+                formService
+        );
+
+        Objects.requireNonNull(
+                getCommand("form"),
+                "form command is not defined in plugin.yml"
+        ).setExecutor(
+                new GuildMenuCommand(this)
+        );
+
+        getLogger().info("Elestya Bedrock Menus activé.");
     }
 
     @Override
     public void onDisable() {
-        // Plugin shutdown logic
+        getLogger().info("Elestya Bedrock Menus désactivé.");
     }
 
-    @Subscribe
-    public void onGeyserPostInitializeEvent(GeyserPostInitializeEvent event) {
-        getLogger().info("Geyser started!");
+    public void ouvrirMenuGuilde(Player player) {
+
+        Objects.requireNonNull(
+                player,
+                "player cannot be null"
+        );
+
+        guildMenuService.ouvrirMenuGuilde(player);
     }
 }
