@@ -1,0 +1,14 @@
+name: Main
+version: '${version}'
+
+main: fr.kilian.elestya.Main
+api-version: '1.21.11'
+load: POSTWORLD
+
+authors: [ TablePasDroite ]
+
+commands:
+  form:
+    description: show form
+
+depend: ["Geyser-Spigot"]
