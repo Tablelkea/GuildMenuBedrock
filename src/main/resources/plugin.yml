@@ -1,14 +1,14 @@
-name: Main
+name: ElestyaBedrock
 version: '${version}'
 
-main: fr.kilian.elestya.Main
+main: fr.kilian.elestya.ElestyaBedrock
 api-version: '1.21.11'
 load: POSTWORLD
 
 authors: [ TablePasDroite ]
 
 commands:
-  form:
+  guildmenu:
     description: show form
 
 depend:

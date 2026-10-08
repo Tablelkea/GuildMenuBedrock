@@ -42,47 +42,52 @@ public class GuildLeaveConfirmForm {
                 )
                 .button1("Confirmer")
                 .button2("Annuler")
-                .validResultHandler(response -> {
+                .validResultHandler(
+                        formService.sync(player, response -> {
 
-                    if (response.clickedButtonId() == 0) {
+                            if (response.clickedButtonId() == 0) {
 
-                        ActionResult result =
-                                guildSource.leaveGuild(
-                                        player.getUniqueId()
+                                ActionResult result =
+                                        guildSource.leaveGuild(
+                                                player.getUniqueId()
+                                        );
+
+                                player.sendMessage(
+                                        result.message()
                                 );
 
-                        player.sendMessage(
-                                result.message()
-                        );
+                                if (result.success()) {
 
-                        if (result.success()) {
+                                    new GuildListForm(
+                                            guildSource,
+                                            formService
+                                    ).open(player);
 
-                            new GuildListForm(
-                                    guildSource,
-                                    formService
-                            ).open(player);
+                                    return;
+                                }
 
-                        } else {
+                                new GuildMainForm(
+                                        guildSource,
+                                        formService
+                                ).open(player);
+
+                                return;
+                            }
 
                             new GuildMainForm(
                                     guildSource,
                                     formService
                             ).open(player);
-                        }
-
-                        return;
-                    }
-
-                    new GuildMainForm(
-                            guildSource,
-                            formService
-                    ).open(player);
-                })
+                        })
+                )
                 .closedOrInvalidResultHandler(
-                        () -> new GuildMainForm(
-                                guildSource,
-                                formService
-                        ).open(player)
+                        formService.sync(
+                                player,
+                                () -> new GuildMainForm(
+                                        guildSource,
+                                        formService
+                                ).open(player)
+                        )
                 )
                 .build();
 

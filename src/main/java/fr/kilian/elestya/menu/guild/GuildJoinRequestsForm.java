@@ -6,6 +6,7 @@ import fr.kilian.elestya.api.domain.GuildPermission;
 import fr.kilian.elestya.api.domain.JoinRequest;
 import fr.kilian.elestya.api.result.ActionResult;
 import fr.kilian.elestya.menu.FormService;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.geysermc.cumulus.form.SimpleForm;
 
@@ -67,7 +68,9 @@ public class GuildJoinRequestsForm {
         }
 
         List<JoinRequest> requests =
-                guildSource.getJoinRequests(guild.id());
+                guildSource.getJoinRequests(
+                        guild.id()
+                );
 
         SimpleForm.Builder builder = SimpleForm.builder()
                 .title("Demandes d'adhésion");
@@ -86,38 +89,43 @@ public class GuildJoinRequestsForm {
             );
 
             for (JoinRequest request : requests) {
-                builder.button(request.playerName());
+                builder.button(
+                        request.playerName()
+                );
             }
         }
 
         builder.button(BACK_BUTTON);
 
-        builder.validResultHandler(response -> {
+        builder.validResultHandler(
+                formService.sync(player, response -> {
 
-            int buttonId = response.clickedButtonId();
+                    int buttonId =
+                            response.clickedButtonId();
 
-            /*
-             * Les demandes occupent les premiers boutons.
-             * Le dernier bouton est toujours "Retour".
-             */
-            if (buttonId < requests.size()) {
+                    /*
+                     * Les demandes correspondent aux premiers boutons.
+                     * Le dernier bouton correspond toujours à Retour.
+                     */
+                    if (buttonId < requests.size()) {
 
-                JoinRequest request =
-                        requests.get(buttonId);
+                        JoinRequest request =
+                                requests.get(buttonId);
 
-                openRequest(
-                        player,
-                        request
-                );
+                        openRequest(
+                                player,
+                                request
+                        );
 
-                return;
-            }
+                        return;
+                    }
 
-            new GuildMainForm(
-                    guildSource,
-                    formService
-            ).open(player);
-        });
+                    new GuildMainForm(
+                            guildSource,
+                            formService
+                    ).open(player);
+                })
+        );
 
         formService.sendForm(
                 player,
@@ -131,7 +139,10 @@ public class GuildJoinRequestsForm {
     ) {
 
         SimpleForm form = SimpleForm.builder()
-                .title("Demande de " + request.playerName())
+                .title(
+                        "Demande de "
+                                + request.playerName()
+                )
                 .content(
                         request.playerName()
                                 + " souhaite rejoindre votre guilde."
@@ -139,46 +150,81 @@ public class GuildJoinRequestsForm {
                 .button(ACCEPT_BUTTON)
                 .button(REJECT_BUTTON)
                 .button(BACK_BUTTON)
-                .validResultHandler(response -> {
+                .validResultHandler(
+                        formService.sync(player, response -> {
 
-                    String clicked =
-                            response.clickedButton().text();
+                            String clicked =
+                                    response.clickedButton().text();
 
-                    switch (clicked) {
+                            switch (clicked) {
 
-                        case ACCEPT_BUTTON -> {
+                                case ACCEPT_BUTTON -> {
 
-                            ActionResult result =
-                                    guildSource.acceptJoinRequest(
-                                            player.getUniqueId(),
-                                            request.playerId()
+                                    ActionResult result =
+                                            guildSource.acceptJoinRequest(
+                                                    player.getUniqueId(),
+                                                    request.playerId()
+                                            );
+
+                                    player.sendMessage(
+                                            result.message()
                                     );
 
-                            player.sendMessage(
-                                    result.message()
-                            );
+                                    if (result.success()) {
 
-                            open(player);
-                        }
+                                        Player joinedPlayer =
+                                                Bukkit.getPlayer(
+                                                        request.playerId()
+                                                );
 
-                        case REJECT_BUTTON -> {
+                                        if (joinedPlayer != null
+                                                && joinedPlayer.isOnline()) {
 
-                            ActionResult result =
-                                    guildSource.rejectJoinRequest(
-                                            player.getUniqueId(),
-                                            request.playerId()
+                                            Guild joinedGuild =
+                                                    guildSource.findGuildByPlayer(
+                                                            request.playerId()
+                                                    ).orElse(null);
+
+                                            if (joinedGuild != null) {
+
+                                                joinedPlayer.sendMessage(
+                                                        "Vous avez rejoint la guilde "
+                                                                + joinedGuild.name()
+                                                                + "."
+                                                );
+
+                                                if (!joinedGuild.entryMessage().isBlank()) {
+
+                                                    joinedPlayer.sendMessage(
+                                                            joinedGuild.entryMessage()
+                                                    );
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    open(player);
+                                }
+
+                                case REJECT_BUTTON -> {
+
+                                    ActionResult result =
+                                            guildSource.rejectJoinRequest(
+                                                    player.getUniqueId(),
+                                                    request.playerId()
+                                            );
+
+                                    player.sendMessage(
+                                            result.message()
                                     );
 
-                            player.sendMessage(
-                                    result.message()
-                            );
+                                    open(player);
+                                }
 
-                            open(player);
-                        }
-
-                        case BACK_BUTTON -> open(player);
-                    }
-                })
+                                case BACK_BUTTON -> open(player);
+                            }
+                        })
+                )
                 .build();
 
         formService.sendForm(

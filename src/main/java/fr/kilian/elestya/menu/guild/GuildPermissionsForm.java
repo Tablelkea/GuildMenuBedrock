@@ -69,18 +69,19 @@ public class GuildPermissionsForm {
 
         Guild guild = optionalGuild.get();
 
-        /*
-         * Seul le chef peut modifier les permissions.
-         */
         if (!guild.ownerId().equals(playerId)) {
+
             player.sendMessage(
                     "Seul le chef peut modifier les permissions."
             );
+
             return;
         }
 
         SimpleForm form = SimpleForm.builder()
-                .title("Permissions - " + guild.name())
+                .title(
+                        "Permissions - " + guild.name()
+                )
                 .content(
                         "Choisissez le rang dont vous souhaitez modifier les permissions."
                 )
@@ -88,39 +89,42 @@ public class GuildPermissionsForm {
                 .button(MEMBER_BUTTON)
                 .button(RECRUIT_BUTTON)
                 .button(BACK_BUTTON)
-                .validResultHandler(response -> {
+                .validResultHandler(
+                        formService.sync(player, response -> {
 
-                    String clicked =
-                            response.clickedButton().text();
+                            String clicked =
+                                    response.clickedButton().text();
 
-                    switch (clicked) {
+                            switch (clicked) {
 
-                        case DEPUTY_BUTTON -> openRankPermissions(
-                                player,
-                                GuildRank.DEPUTY
-                        );
+                                case DEPUTY_BUTTON -> openRankPermissions(
+                                        player,
+                                        GuildRank.DEPUTY
+                                );
 
-                        case MEMBER_BUTTON -> openRankPermissions(
-                                player,
-                                GuildRank.MEMBER
-                        );
+                                case MEMBER_BUTTON -> openRankPermissions(
+                                        player,
+                                        GuildRank.MEMBER
+                                );
 
-                        case RECRUIT_BUTTON -> openRankPermissions(
-                                player,
-                                GuildRank.RECRUIT
-                        );
+                                case RECRUIT_BUTTON -> openRankPermissions(
+                                        player,
+                                        GuildRank.RECRUIT
+                                );
 
-                        case BACK_BUTTON -> new GuildMainForm(
-                                guildSource,
-                                formService
-                        ).open(player);
-
-                        default -> {}
-                    }
-                })
+                                case BACK_BUTTON -> new GuildMainForm(
+                                        guildSource,
+                                        formService
+                                ).open(player);
+                            }
+                        })
+                )
                 .build();
 
-        formService.sendForm(player, form);
+        formService.sendForm(
+                player,
+                form
+        );
     }
 
     private void openRankPermissions(
@@ -140,9 +144,11 @@ public class GuildPermissionsForm {
         Guild guild = optionalGuild.get();
 
         if (!guild.ownerId().equals(playerId)) {
+
             player.sendMessage(
                     "Seul le chef peut modifier les permissions."
             );
+
             return;
         }
 
@@ -154,7 +160,8 @@ public class GuildPermissionsForm {
 
         CustomForm.Builder builder = CustomForm.builder()
                 .title(
-                        "Permissions - " + getRankName(rank)
+                        "Permissions - "
+                                + getRankName(rank)
                 );
 
         for (GuildPermission permission : PERMISSIONS) {
@@ -166,70 +173,77 @@ public class GuildPermissionsForm {
         }
 
         builder.closedOrInvalidResultHandler(
-                () -> open(player)
+                formService.sync(
+                        player,
+                        () -> open(player)
+                )
         );
 
-        builder.validResultHandler(response -> {
+        builder.validResultHandler(
+                formService.sync(player, response -> {
 
-            boolean changed = false;
+                    boolean changed = false;
 
-            for (int i = 0; i < PERMISSIONS.length; i++) {
+                    for (int i = 0; i < PERMISSIONS.length; i++) {
 
-                GuildPermission permission =
-                        PERMISSIONS[i];
+                        GuildPermission permission =
+                                PERMISSIONS[i];
 
-                boolean oldValue =
-                        currentPermissions.contains(permission);
+                        boolean oldValue =
+                                currentPermissions.contains(
+                                        permission
+                                );
 
-                boolean newValue =
-                        response.asToggle(i);
+                        boolean newValue =
+                                response.asToggle(i);
 
-                /*
-                 * Rien n'a changé pour cette permission.
-                 */
-                if (oldValue == newValue) {
-                    continue;
-                }
+                        if (oldValue == newValue) {
+                            continue;
+                        }
 
-                ActionResult result =
-                        guildSource.setPermission(
-                                playerId,
-                                rank,
-                                permission,
-                                newValue
+                        ActionResult result =
+                                guildSource.setPermission(
+                                        playerId,
+                                        rank,
+                                        permission,
+                                        newValue
+                                );
+
+                        if (!result.success()) {
+
+                            player.sendMessage(
+                                    result.message()
+                            );
+
+                            openRankPermissions(
+                                    player,
+                                    rank
+                            );
+
+                            return;
+                        }
+
+                        changed = true;
+                    }
+
+                    if (changed) {
+
+                        player.sendMessage(
+                                "Les permissions du rang "
+                                        + getRankName(rank)
+                                        + " ont été mises à jour."
                         );
 
-                if (!result.success()) {
+                    } else {
 
-                    player.sendMessage(
-                            result.message()
-                    );
+                        player.sendMessage(
+                                "Aucune permission n'a été modifiée."
+                        );
+                    }
 
-                    openRankPermissions(
-                            player,
-                            rank
-                    );
-
-                    return;
-                }
-
-                changed = true;
-            }
-
-            if (changed) {
-                player.sendMessage(
-                        "Les permissions du rang "
-                                + getRankName(rank)
-                                + " ont été mises à jour."
-                );
-            } else {
-                player.sendMessage(
-                        "Aucune permission n'a été modifiée."
-                );
-            }
-
-            open(player);
-        });
+                    open(player);
+                })
+        );
 
         formService.sendForm(
                 player,

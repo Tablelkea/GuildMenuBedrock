@@ -33,6 +33,14 @@ public class GuildMenuService {
                 "player cannot be null"
         );
 
+        formService.runSync(
+                player,
+                () -> openMenu(player)
+        );
+    }
+
+    private void openMenu(Player player) {
+
         if (!formService.isBedrockPlayer(player)) {
             return;
         }

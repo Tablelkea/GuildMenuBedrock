@@ -18,6 +18,9 @@ public class GuildListForm {
     private static final String CREATE_BUTTON = "Créer une guilde";
     private static final String JOIN_BUTTON = "Demander à rejoindre";
     private static final String BACK_BUTTON = "Retour";
+    private static final String SENT_REQUESTS_BUTTON = "Demandes envoyées";
+    private static final String INVITATIONS_BUTTON = "Invitations reçues";
+    private static final String RANKING_BUTTON = "Classement";
 
     private final GuildSource guildSource;
     private final FormService formService;
@@ -46,11 +49,15 @@ public class GuildListForm {
 
         UUID playerId = player.getUniqueId();
 
-        /*
-         * Si le joueur possède déjà une guilde,
-         * il n'a plus rien à faire dans ce menu.
-         */
+        boolean hasInvitations =
+                !guildSource
+                        .getReceivedInvitations(
+                                playerId
+                        )
+                        .isEmpty();
+
         if (guildSource.findGuildByPlayer(playerId).isPresent()) {
+
             new GuildMainForm(
                     guildSource,
                     formService
@@ -59,10 +66,6 @@ public class GuildListForm {
             return;
         }
 
-        /*
-         * On trie simplement par nom afin que la liste reste
-         * stable même si MemoryGuildSource utilise une HashMap.
-         */
         List<Guild> guilds = guildSource.getGuilds()
                 .stream()
                 .sorted(
@@ -89,33 +92,81 @@ public class GuildListForm {
             );
         }
 
-        builder.button(CREATE_BUTTON);
+        boolean hasPendingRequests =
+                !guildSource
+                        .getPendingJoinRequestGuilds(
+                                playerId
+                        )
+                        .isEmpty();
 
-        builder.validResultHandler(response -> {
+        builder.button(
+                RANKING_BUTTON
+        );
 
-            int buttonId = response.clickedButtonId();
+        if (hasInvitations) {
+            builder.button(
+                    INVITATIONS_BUTTON
+            );
+        }
 
-            /*
-             * Tous les premiers boutons correspondent aux guildes.
-             */
-            if (buttonId < guilds.size()) {
+        if (hasPendingRequests) {
+            builder.button(
+                    SENT_REQUESTS_BUTTON
+            );
+        }
 
-                Guild selectedGuild =
-                        guilds.get(buttonId);
+        builder.button(
+                CREATE_BUTTON
+        );
 
-                openGuildDetails(
-                        player,
-                        selectedGuild
-                );
+        builder.validResultHandler(
+                formService.sync(player, response -> {
 
-                return;
-            }
+                    int buttonId =
+                            response.clickedButtonId();
 
-            /*
-             * Le dernier bouton est "Créer une guilde".
-             */
-            openCreateGuildForm(player);
-        });
+                    if (buttonId < guilds.size()) {
+
+                        Guild selectedGuild =
+                                guilds.get(buttonId);
+
+                        openGuildDetails(
+                                player,
+                                selectedGuild
+                        );
+
+                        return;
+                    }
+
+                    String clicked =
+                            response.clickedButton().text();
+
+                    switch (clicked) {
+
+                        case INVITATIONS_BUTTON ->
+                                new GuildInvitationsForm(
+                                        guildSource,
+                                        formService
+                                ).open(player);
+
+                        case SENT_REQUESTS_BUTTON ->
+                                new GuildSentRequestsForm(
+                                        guildSource,
+                                        formService
+                                ).open(player);
+
+                        case CREATE_BUTTON ->
+                                openCreateGuildForm(
+                                        player
+                                );
+                        case RANKING_BUTTON ->
+                                new GuildRankingForm(
+                                        guildSource,
+                                        formService
+                                ).open(player);
+                    }
+                })
+        );
 
         formService.sendForm(
                 player,
@@ -128,15 +179,12 @@ public class GuildListForm {
             Guild guild
     ) {
 
-        /*
-         * On récupère une version récente de la guilde.
-         * Elle a pu changer depuis l'ouverture de la liste.
-         */
         Guild currentGuild = guildSource
                 .findGuildById(guild.id())
                 .orElse(null);
 
         if (currentGuild == null) {
+
             player.sendMessage(
                     "Cette guilde n'existe plus."
             );
@@ -148,40 +196,42 @@ public class GuildListForm {
         SimpleForm form = SimpleForm.builder()
                 .title(currentGuild.name())
                 .content(
-                        "Nom : " + currentGuild.name()
-                                + "\nMembres : " + currentGuild.members().size()
-                                + "\nBanque : " + currentGuild.balance()
+                        "Nom : "
+                                + currentGuild.name()
+                                + "\nMembres : "
+                                + currentGuild.members().size()
+                                + "\nBanque : "
+                                + currentGuild.balance()
                 )
                 .button(JOIN_BUTTON)
                 .button(BACK_BUTTON)
-                .validResultHandler(response -> {
+                .validResultHandler(
+                        formService.sync(player, response -> {
 
-                    String clicked =
-                            response.clickedButton().text();
+                            String clicked =
+                                    response.clickedButton().text();
 
-                    switch (clicked) {
+                            switch (clicked) {
 
-                        case JOIN_BUTTON -> {
+                                case JOIN_BUTTON -> {
 
-                            ActionResult result =
-                                    guildSource.requestToJoin(
-                                            player.getUniqueId(),
-                                            currentGuild.id()
+                                    ActionResult result =
+                                            guildSource.requestToJoin(
+                                                    player.getUniqueId(),
+                                                    currentGuild.id()
+                                            );
+
+                                    player.sendMessage(
+                                            result.message()
                                     );
 
-                            player.sendMessage(
-                                    result.message()
-                            );
+                                    open(player);
+                                }
 
-                            open(player);
-                        }
-
-                        case BACK_BUTTON -> open(player);
-
-                        default -> {
-                        }
-                    }
-                })
+                                case BACK_BUTTON -> open(player);
+                            }
+                        })
+                )
                 .build();
 
         formService.sendForm(
@@ -190,62 +240,140 @@ public class GuildListForm {
         );
     }
 
-    private void openCreateGuildForm(Player player) {
+    private void openCreateGuildForm(
+            Player player
+    ) {
 
-        CustomForm form = CustomForm.builder()
-                .title("Créer une guilde")
-                .input(
-                        "Nom de la guilde",
-                        "Exemple : Aurora"
-                )
-                .closedOrInvalidResultHandler(
-                        () -> open(player)
-                )
-                .validResultHandler(response -> {
+        openCreateGuildForm(
+                player,
+                "",
+                "",
+                null
+        );
+    }
 
-                    String name =
-                            response.asInput(0);
+    private void openCreateGuildForm(
+            Player player,
+            String previousName,
+            String previousEntryMessage,
+            String errorMessage
+    ) {
 
-                    if (name == null || name.isBlank()) {
-
-                        player.sendMessage(
-                                "Veuillez saisir un nom de guilde."
+        CustomForm.Builder builder =
+                CustomForm.builder()
+                        .title(
+                                "Créer une guilde"
                         );
 
-                        openCreateGuildForm(player);
-                        return;
-                    }
+        if (errorMessage != null
+                && !errorMessage.isBlank()) {
+
+            builder.label(
+                    "Erreur : "
+                            + errorMessage
+            );
+        }
+
+        builder.label(
+                "Règles du nom :\n"
+                        + "• 3 à 16 caractères\n"
+                        + "• Lettres et chiffres\n"
+                        + "• Tiret : -\n"
+                        + "• Tiret bas : _"
+        );
+
+        builder.input(
+                "Nom de la guilde",
+                "Exemple : Aurora",
+                previousName
+        );
+
+        builder.input(
+                "Message d'entrée",
+                "Exemple : Bienvenue dans notre guilde !",
+                previousEntryMessage
+        );
+
+        builder.closedOrInvalidResultHandler(
+                formService.sync(
+                        player,
+                        () -> open(player)
+                )
+        );
+
+        builder.validResultHandler(
+                formService.sync(player, response -> {
+
+                    /*
+                     * Index 0 = label des règles si aucune erreur.
+                     *
+                     * Pour éviter les index variables à cause du label
+                     * d'erreur, on construit les index ci-dessous.
+                     */
+                    int nameIndex =
+                            errorMessage == null
+                                    || errorMessage.isBlank()
+                                    ? 1
+                                    : 2;
+
+                    int messageIndex =
+                            nameIndex + 1;
+
+                    String nameInput =
+                            response.asInput(
+                                    nameIndex
+                            );
+
+                    String messageInput =
+                            response.asInput(
+                                    messageIndex
+                            );
+
+                    String name =
+                            nameInput == null
+                                    ? ""
+                                    : nameInput.trim();
+
+                    String entryMessage =
+                            messageInput == null
+                                    ? ""
+                                    : messageInput.trim();
 
                     ActionResult result =
                             guildSource.createGuild(
                                     player.getUniqueId(),
-                                    name.trim()
+                                    name,
+                                    entryMessage
                             );
+
+                    if (!result.success()) {
+
+                        openCreateGuildForm(
+                                player,
+                                name,
+                                entryMessage,
+                                result.message()
+                        );
+
+                        return;
+                    }
 
                     player.sendMessage(
                             result.message()
                     );
 
-                    if (result.success()) {
-
-                        /*
-                         * Le joueur est maintenant chef de sa guilde.
-                         */
-                        new GuildMainForm(
-                                guildSource,
-                                formService
-                        ).open(player);
-
-                        return;
-                    }
-
-                    openCreateGuildForm(player);
+                    new GuildMainForm(
+                            guildSource,
+                            formService
+                    ).open(player);
                 })
-                .build();
+        );
 
         formService.sendForm(
                 player,
-                form
+                builder.build()
         );
     }
+
+
 }

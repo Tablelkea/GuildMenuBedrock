@@ -53,7 +53,7 @@ public class GuildBankForm {
 
         builder.button(BACK_BUTTON);
 
-        builder.validResultHandler(response -> {
+        builder.validResultHandler(formService.sync(player, response -> {
 
             String clicked = response.clickedButton().text();
 
@@ -63,12 +63,12 @@ public class GuildBankForm {
 
                 case WITHDRAW_BUTTON -> openWithdrawForm(player);
 
-                case BACK_BUTTON -> new GuildMainForm(guildSource, formService).open(player);
+                case BACK_BUTTON -> new GuildTreasuryForm(guildSource, formService).open(player);
 
                 default -> {
                 }
             }
-        });
+        }));
 
         SimpleForm form = builder.build();
 
@@ -79,13 +79,14 @@ public class GuildBankForm {
 
         UUID playerId = player.getUniqueId();
 
-        CustomForm form = CustomForm.builder().title("Déposer de l'argent").input("Montant à déposer", "Exemple : 500").closedOrInvalidResultHandler(() -> open(player)).validResultHandler(response -> {
+        CustomForm form = CustomForm.builder().title("Déposer de l'argent").input("Montant à déposer", "Exemple : 500").closedOrInvalidResultHandler(formService.sync(player, () -> open(player))).validResultHandler(formService.sync(player, response -> {
 
             String input = response.asInput(0);
 
             Double amount = parseAmount(input);
 
             if (amount == null) {
+
                 player.sendMessage("Veuillez saisir un montant valide.");
 
                 openDepositForm(player);
@@ -97,7 +98,7 @@ public class GuildBankForm {
             player.sendMessage(result.message());
 
             open(player);
-        }).build();
+        })).build();
 
         formService.sendForm(player, form);
     }
@@ -106,13 +107,14 @@ public class GuildBankForm {
 
         UUID playerId = player.getUniqueId();
 
-        CustomForm form = CustomForm.builder().title("Retirer de l'argent").input("Montant à retirer", "Exemple : 500").closedOrInvalidResultHandler(() -> open(player)).validResultHandler(response -> {
+        CustomForm form = CustomForm.builder().title("Retirer de l'argent").input("Montant à retirer", "Exemple : 500").closedOrInvalidResultHandler(formService.sync(player, () -> open(player))).validResultHandler(formService.sync(player, response -> {
 
             String input = response.asInput(0);
 
             Double amount = parseAmount(input);
 
             if (amount == null) {
+
                 player.sendMessage("Veuillez saisir un montant valide.");
 
                 openWithdrawForm(player);
@@ -124,7 +126,7 @@ public class GuildBankForm {
             player.sendMessage(result.message());
 
             open(player);
-        }).build();
+        })).build();
 
         formService.sendForm(player, form);
     }
@@ -137,11 +139,17 @@ public class GuildBankForm {
 
         try {
 
-            /*
-             * Accepte aussi "12,50", plus naturel
-             * pour un joueur français.
-             */
-            return Double.parseDouble(input.trim().replace(',', '.'));
+            double amount = Double.parseDouble(input.trim().replace(',', '.'));
+
+            if (!Double.isFinite(amount)) {
+                return null;
+            }
+
+            if (amount <= 0) {
+                return null;
+            }
+
+            return amount;
 
         } catch (NumberFormatException exception) {
             return null;

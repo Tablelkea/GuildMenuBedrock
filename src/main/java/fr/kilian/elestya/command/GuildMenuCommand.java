@@ -1,6 +1,6 @@
 package fr.kilian.elestya.command;
 
-import fr.kilian.elestya.Main;
+import fr.kilian.elestya.ElestyaBedrock;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -10,9 +10,9 @@ import java.util.Objects;
 
 public class GuildMenuCommand implements CommandExecutor {
 
-    private final Main plugin;
+    private final ElestyaBedrock plugin;
 
-    public GuildMenuCommand(Main plugin) {
+    public GuildMenuCommand(ElestyaBedrock plugin) {
         this.plugin = Objects.requireNonNull(
                 plugin,
                 "plugin cannot be null"

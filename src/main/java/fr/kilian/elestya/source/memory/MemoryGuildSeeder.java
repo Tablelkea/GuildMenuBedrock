@@ -7,6 +7,7 @@ import fr.kilian.elestya.api.domain.GuildRank;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
@@ -25,6 +26,7 @@ public class MemoryGuildSeeder {
                 "Aurora",
                 "Aelys",
                 15_000,
+                2_450,
                 "Nerion",
                 "Kael",
                 "Lyria",
@@ -40,6 +42,7 @@ public class MemoryGuildSeeder {
                 "Valoria",
                 "Eryndor",
                 8_500,
+                0,
                 "Mirael",
                 "Soren",
                 "Nyra"
@@ -54,6 +57,7 @@ public class MemoryGuildSeeder {
                 "Eclipse",
                 "Noctis",
                 23_000,
+                3_200,
                 "Selene",
                 "Orion",
                 "Veyra",
@@ -69,6 +73,7 @@ public class MemoryGuildSeeder {
                 "Ember",
                 "Kaelis",
                 4_200,
+                780,
                 "Riven",
                 "Ashen",
                 "Fiora"
@@ -83,6 +88,7 @@ public class MemoryGuildSeeder {
                 "Celestia",
                 "Astra",
                 17_800,
+                1_950,
                 "Lyanna",
                 "Elios",
                 "Seraph"
@@ -97,6 +103,7 @@ public class MemoryGuildSeeder {
                 "Ironclad",
                 "Draven",
                 10_500,
+                0,
                 "Brom",
                 "Garrick",
                 "Torin"
@@ -111,6 +118,7 @@ public class MemoryGuildSeeder {
                 "Verdant",
                 "Sylva",
                 6_700,
+                560,
                 "Rowan",
                 "Ivy",
                 "Flora"
@@ -125,6 +133,7 @@ public class MemoryGuildSeeder {
                 "Obsidian",
                 "Mordren",
                 30_000,
+                4_100,
                 "Varek",
                 "Darius",
                 "Nyx"
@@ -139,6 +148,7 @@ public class MemoryGuildSeeder {
                 "Stormborn",
                 "Raegar",
                 12_400,
+                2_240,
                 "Tempest",
                 "Zephyr",
                 "Ardyn"
@@ -153,6 +163,7 @@ public class MemoryGuildSeeder {
                 "Lunaris",
                 "Selena",
                 9_900,
+                980,
                 "Luna",
                 "Cerys",
                 "Elara"
@@ -167,6 +178,7 @@ public class MemoryGuildSeeder {
                 "Phoenix",
                 "Ignis",
                 19_500,
+                2_750,
                 "Cinder",
                 "Blaze",
                 "Emberlyn"
@@ -181,6 +193,7 @@ public class MemoryGuildSeeder {
                 "Frostborn",
                 "Skadi",
                 7_300,
+                0,
                 "Bjorn",
                 "Ylva",
                 "Freya"
@@ -195,6 +208,7 @@ public class MemoryGuildSeeder {
                 "Arcadia",
                 "Cassian",
                 11_200,
+                1_340,
                 "Adriel",
                 "Maeve",
                 "Elric"
@@ -209,6 +223,7 @@ public class MemoryGuildSeeder {
                 "Ravenfall",
                 "Corvin",
                 14_600,
+                1_650,
                 "Raven",
                 "Silas",
                 "Morrigan"
@@ -223,6 +238,7 @@ public class MemoryGuildSeeder {
                 "Solaris",
                 "Helios",
                 21_000,
+                3_500,
                 "Sol",
                 "Lucian",
                 "Aurelia"
@@ -237,6 +253,7 @@ public class MemoryGuildSeeder {
                 "Wild Hunt",
                 "Fenrir",
                 5_800,
+                430,
                 "Hati",
                 "Skoll",
                 "Ulf"
@@ -251,6 +268,7 @@ public class MemoryGuildSeeder {
                 "Evernight",
                 "Vesper",
                 16_250,
+                2_080,
                 "Shade",
                 "Umbra",
                 "Nox"
@@ -265,6 +283,7 @@ public class MemoryGuildSeeder {
                 "Silverwing",
                 "Alaric",
                 13_750,
+                1_160,
                 "Aerion",
                 "Gale",
                 "Ciel"
@@ -279,6 +298,7 @@ public class MemoryGuildSeeder {
                 "Dragonspire",
                 "Vaelor",
                 27_000,
+                3_890,
                 "Rhaen",
                 "Drake",
                 "Syrax"
@@ -293,6 +313,7 @@ public class MemoryGuildSeeder {
                 "Horizon",
                 "Atlas",
                 18_400,
+                0,
                 "Nova",
                 "Aster",
                 "Skye"
@@ -310,6 +331,7 @@ public class MemoryGuildSeeder {
             String name,
             String ownerName,
             double balance,
+            int points,
             String deputyName,
             String... memberNames
     ) {
@@ -365,6 +387,7 @@ public class MemoryGuildSeeder {
                 ownerId,
                 members,
                 balance,
+                points,
                 new ArrayList<>()
         );
     }

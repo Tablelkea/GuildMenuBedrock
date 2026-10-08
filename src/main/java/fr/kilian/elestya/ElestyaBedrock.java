@@ -11,7 +11,7 @@ import org.geysermc.floodgate.api.FloodgateApi;
 
 import java.util.Objects;
 
-public final class Main extends JavaPlugin {
+public final class ElestyaBedrock extends JavaPlugin {
 
     private GuildSource guildSource;
     private FormService formService;
@@ -25,7 +25,7 @@ public final class Main extends JavaPlugin {
         api = FloodgateApi.getInstance();
 
         guildSource = new MemoryGuildSource();
-        formService = new FormService(api);
+        formService = new FormService(this, api);
 
         guildMenuService = new GuildMenuService(
                 guildSource,
@@ -33,7 +33,7 @@ public final class Main extends JavaPlugin {
         );
 
         Objects.requireNonNull(
-                getCommand("form"),
+                getCommand("guildmenu"),
                 "form command is not defined in plugin.yml"
         ).setExecutor(
                 new GuildMenuCommand(this)

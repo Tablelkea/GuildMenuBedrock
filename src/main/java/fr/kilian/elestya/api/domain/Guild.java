@@ -6,13 +6,13 @@ public class Guild {
 
     private final String id;
     private final String name;
-    private final UUID ownerId;
     private final List<GuildMember> members;
     private final List<UUID> joinRequests;
-
     private final Map<GuildRank, Set<GuildPermission>> permissions;
-
+    private UUID ownerId;
     private double balance;
+    private int points;
+    private String entryMessage = "";
 
     public Guild(
             String id,
@@ -20,6 +20,7 @@ public class Guild {
             UUID ownerId,
             List<GuildMember> members,
             double balance,
+            int points,
             List<UUID> joinRequests
     ) {
         this.id = Objects.requireNonNull(id, "id cannot be null");
@@ -29,6 +30,7 @@ public class Guild {
         this.joinRequests = Objects.requireNonNull(joinRequests, "joinRequests cannot be null");
 
         this.balance = balance;
+        this.points = points;
 
         this.permissions = new EnumMap<>(GuildRank.class);
 
@@ -63,6 +65,13 @@ public class Guild {
 
     public UUID ownerId() {
         return ownerId;
+    }
+
+    public void setOwnerId(UUID ownerId) {
+        this.ownerId = Objects.requireNonNull(
+                ownerId,
+                "ownerId cannot be null"
+        );
     }
 
     public List<GuildMember> members() {
@@ -192,5 +201,24 @@ public class Guild {
         } else {
             rankPermissions.remove(permission);
         }
+    }
+
+    public int points() {
+        return points;
+    }
+
+    public void setPoints(int points) {
+        this.points = Math.max(0, points);
+    }
+
+    public String entryMessage() {
+        return entryMessage;
+    }
+
+    public void setEntryMessage(String entryMessage) {
+        this.entryMessage = Objects.requireNonNull(
+                entryMessage,
+                "entryMessage cannot be null"
+        );
     }
 }
