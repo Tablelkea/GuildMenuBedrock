@@ -1,8 +1,8 @@
 package fr.kilian.elestya.menu.guild;
 
 import fr.kilian.elestya.api.GuildSource;
-import fr.kilian.elestya.api.domain.Guild;
-import fr.kilian.elestya.api.domain.GuildWeeklyObjective;
+import fr.kilian.elestya.api.domain.guild.Guild;
+import fr.kilian.elestya.api.domain.guild.GuildWeeklyObjective;
 import fr.kilian.elestya.menu.FormService;
 import org.bukkit.entity.Player;
 import org.geysermc.cumulus.form.SimpleForm;

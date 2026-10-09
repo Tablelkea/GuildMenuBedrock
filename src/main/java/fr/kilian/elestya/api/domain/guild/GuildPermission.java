@@ -1,4 +1,4 @@
-package fr.kilian.elestya.api.domain;
+package fr.kilian.elestya.api.domain.guild;
 
 public enum GuildPermission {
     BUILD,

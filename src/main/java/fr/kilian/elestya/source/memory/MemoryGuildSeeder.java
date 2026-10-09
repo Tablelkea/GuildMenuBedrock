@@ -1,13 +1,12 @@
 package fr.kilian.elestya.source.memory;
 
-import fr.kilian.elestya.api.domain.Guild;
-import fr.kilian.elestya.api.domain.GuildMember;
-import fr.kilian.elestya.api.domain.GuildPermission;
-import fr.kilian.elestya.api.domain.GuildRank;
+import fr.kilian.elestya.api.domain.guild.Guild;
+import fr.kilian.elestya.api.domain.guild.GuildMember;
+import fr.kilian.elestya.api.domain.guild.GuildPermission;
+import fr.kilian.elestya.api.domain.guild.GuildRank;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
@@ -21,303 +20,121 @@ public class MemoryGuildSeeder {
 
     public void seed() {
 
-        Guild aurora = createGuild(
-                "aurora",
-                "Aurora",
-                "Aelys",
-                15_000,
-                2_450,
-                "Nerion",
-                "Kael",
-                "Lyria",
-                "Thane"
-        );
+        Guild aurora = createGuild("aurora", "Aurora", "Aelys", 15_000, 2_450, "Nerion", "Kael", "Lyria", "Thane");
 
         configureBalancedPermissions(aurora);
         source.addGuild(aurora);
 
 
-        Guild valoria = createGuild(
-                "valoria",
-                "Valoria",
-                "Eryndor",
-                8_500,
-                0,
-                "Mirael",
-                "Soren",
-                "Nyra"
-        );
+        Guild valoria = createGuild("valoria", "Valoria", "Eryndor", 8_500, 0, "Mirael", "Soren", "Nyra");
 
         configureStrictPermissions(valoria);
         source.addGuild(valoria);
 
 
-        Guild eclipse = createGuild(
-                "eclipse",
-                "Eclipse",
-                "Noctis",
-                23_000,
-                3_200,
-                "Selene",
-                "Orion",
-                "Veyra",
-                "Kian"
-        );
+        Guild eclipse = createGuild("eclipse", "Eclipse", "Noctis", 23_000, 3_200, "Selene", "Orion", "Veyra", "Kian");
 
         configurePermissivePermissions(eclipse);
         source.addGuild(eclipse);
 
 
-        Guild ember = createGuild(
-                "ember",
-                "Ember",
-                "Kaelis",
-                4_200,
-                780,
-                "Riven",
-                "Ashen",
-                "Fiora"
-        );
+        Guild ember = createGuild("ember", "Ember", "Kaelis", 4_200, 780, "Riven", "Ashen", "Fiora");
 
         configureBalancedPermissions(ember);
         source.addGuild(ember);
 
 
-        Guild celestia = createGuild(
-                "celestia",
-                "Celestia",
-                "Astra",
-                17_800,
-                1_950,
-                "Lyanna",
-                "Elios",
-                "Seraph"
-        );
+        Guild celestia = createGuild("celestia", "Celestia", "Astra", 17_800, 1_950, "Lyanna", "Elios", "Seraph");
 
         configurePermissivePermissions(celestia);
         source.addGuild(celestia);
 
 
-        Guild ironclad = createGuild(
-                "ironclad",
-                "Ironclad",
-                "Draven",
-                10_500,
-                0,
-                "Brom",
-                "Garrick",
-                "Torin"
-        );
+        Guild ironclad = createGuild("ironclad", "Ironclad", "Draven", 10_500, 0, "Brom", "Garrick", "Torin");
 
         configureStrictPermissions(ironclad);
         source.addGuild(ironclad);
 
 
-        Guild verdant = createGuild(
-                "verdant",
-                "Verdant",
-                "Sylva",
-                6_700,
-                560,
-                "Rowan",
-                "Ivy",
-                "Flora"
-        );
+        Guild verdant = createGuild("verdant", "Verdant", "Sylva", 6_700, 560, "Rowan", "Ivy", "Flora");
 
         configureBalancedPermissions(verdant);
         source.addGuild(verdant);
 
 
-        Guild obsidian = createGuild(
-                "obsidian",
-                "Obsidian",
-                "Mordren",
-                30_000,
-                4_100,
-                "Varek",
-                "Darius",
-                "Nyx"
-        );
+        Guild obsidian = createGuild("obsidian", "Obsidian", "Mordren", 30_000, 4_100, "Varek", "Darius", "Nyx");
 
         configureStrictPermissions(obsidian);
         source.addGuild(obsidian);
 
 
-        Guild stormborn = createGuild(
-                "stormborn",
-                "Stormborn",
-                "Raegar",
-                12_400,
-                2_240,
-                "Tempest",
-                "Zephyr",
-                "Ardyn"
-        );
+        Guild stormborn = createGuild("stormborn", "Stormborn", "Raegar", 12_400, 2_240, "Tempest", "Zephyr", "Ardyn");
 
         configurePermissivePermissions(stormborn);
         source.addGuild(stormborn);
 
 
-        Guild lunaris = createGuild(
-                "lunaris",
-                "Lunaris",
-                "Selena",
-                9_900,
-                980,
-                "Luna",
-                "Cerys",
-                "Elara"
-        );
+        Guild lunaris = createGuild("lunaris", "Lunaris", "Selena", 9_900, 980, "Luna", "Cerys", "Elara");
 
         configureBalancedPermissions(lunaris);
         source.addGuild(lunaris);
 
 
-        Guild phoenix = createGuild(
-                "phoenix",
-                "Phoenix",
-                "Ignis",
-                19_500,
-                2_750,
-                "Cinder",
-                "Blaze",
-                "Emberlyn"
-        );
+        Guild phoenix = createGuild("phoenix", "Phoenix", "Ignis", 19_500, 2_750, "Cinder", "Blaze", "Emberlyn");
 
         configurePermissivePermissions(phoenix);
         source.addGuild(phoenix);
 
 
-        Guild frostborn = createGuild(
-                "frostborn",
-                "Frostborn",
-                "Skadi",
-                7_300,
-                0,
-                "Bjorn",
-                "Ylva",
-                "Freya"
-        );
+        Guild frostborn = createGuild("frostborn", "Frostborn", "Skadi", 7_300, 0, "Bjorn", "Ylva", "Freya");
 
         configureStrictPermissions(frostborn);
         source.addGuild(frostborn);
 
 
-        Guild arcadia = createGuild(
-                "arcadia",
-                "Arcadia",
-                "Cassian",
-                11_200,
-                1_340,
-                "Adriel",
-                "Maeve",
-                "Elric"
-        );
+        Guild arcadia = createGuild("arcadia", "Arcadia", "Cassian", 11_200, 1_340, "Adriel", "Maeve", "Elric");
 
         configureBalancedPermissions(arcadia);
         source.addGuild(arcadia);
 
 
-        Guild ravenfall = createGuild(
-                "ravenfall",
-                "Ravenfall",
-                "Corvin",
-                14_600,
-                1_650,
-                "Raven",
-                "Silas",
-                "Morrigan"
-        );
+        Guild ravenfall = createGuild("ravenfall", "Ravenfall", "Corvin", 14_600, 1_650, "Raven", "Silas", "Morrigan");
 
         configureStrictPermissions(ravenfall);
         source.addGuild(ravenfall);
 
 
-        Guild solaris = createGuild(
-                "solaris",
-                "Solaris",
-                "Helios",
-                21_000,
-                3_500,
-                "Sol",
-                "Lucian",
-                "Aurelia"
-        );
+        Guild solaris = createGuild("solaris", "Solaris", "Helios", 21_000, 3_500, "Sol", "Lucian", "Aurelia");
 
         configurePermissivePermissions(solaris);
         source.addGuild(solaris);
 
 
-        Guild wildHunt = createGuild(
-                "wildhunt",
-                "Wild Hunt",
-                "Fenrir",
-                5_800,
-                430,
-                "Hati",
-                "Skoll",
-                "Ulf"
-        );
+        Guild wildHunt = createGuild("wildhunt", "Wild Hunt", "Fenrir", 5_800, 430, "Hati", "Skoll", "Ulf");
 
         configureBalancedPermissions(wildHunt);
         source.addGuild(wildHunt);
 
 
-        Guild evernight = createGuild(
-                "evernight",
-                "Evernight",
-                "Vesper",
-                16_250,
-                2_080,
-                "Shade",
-                "Umbra",
-                "Nox"
-        );
+        Guild evernight = createGuild("evernight", "Evernight", "Vesper", 16_250, 2_080, "Shade", "Umbra", "Nox");
 
         configureStrictPermissions(evernight);
         source.addGuild(evernight);
 
 
-        Guild silverwing = createGuild(
-                "silverwing",
-                "Silverwing",
-                "Alaric",
-                13_750,
-                1_160,
-                "Aerion",
-                "Gale",
-                "Ciel"
-        );
+        Guild silverwing = createGuild("silverwing", "Silverwing", "Alaric", 13_750, 1_160, "Aerion", "Gale", "Ciel");
 
         configureBalancedPermissions(silverwing);
         source.addGuild(silverwing);
 
 
-        Guild dragonspire = createGuild(
-                "dragonspire",
-                "Dragonspire",
-                "Vaelor",
-                27_000,
-                3_890,
-                "Rhaen",
-                "Drake",
-                "Syrax"
-        );
+        Guild dragonspire = createGuild("dragonspire", "Dragonspire", "Vaelor", 27_000, 3_890, "Rhaen", "Drake", "Syrax");
 
         configurePermissivePermissions(dragonspire);
         source.addGuild(dragonspire);
 
 
-        Guild horizon = createGuild(
-                "horizon",
-                "Horizon",
-                "Atlas",
-                18_400,
-                0,
-                "Nova",
-                "Aster",
-                "Skye"
-        );
+        Guild horizon = createGuild("horizon", "Horizon", "Atlas", 18_400, 0, "Nova", "Aster", "Skye");
 
         configureBalancedPermissions(horizon);
         source.addGuild(horizon);
@@ -326,45 +143,19 @@ public class MemoryGuildSeeder {
         seedJoinRequests();
     }
 
-    private Guild createGuild(
-            String id,
-            String name,
-            String ownerName,
-            double balance,
-            int points,
-            String deputyName,
-            String... memberNames
-    ) {
+    private Guild createGuild(String id, String name, String ownerName, double balance, int points, String deputyName, String... memberNames) {
 
         UUID ownerId = uuid(name + ":" + ownerName);
 
         List<GuildMember> members = new ArrayList<>();
 
-        members.add(
-                new GuildMember(
-                        ownerId,
-                        ownerName,
-                        GuildRank.OWNER
-                )
-        );
+        members.add(new GuildMember(ownerId, ownerName, GuildRank.OWNER));
 
-        members.add(
-                new GuildMember(
-                        uuid(name + ":" + deputyName),
-                        deputyName,
-                        GuildRank.DEPUTY
-                )
-        );
+        members.add(new GuildMember(uuid(name + ":" + deputyName), deputyName, GuildRank.DEPUTY));
 
         for (String memberName : memberNames) {
 
-            members.add(
-                    new GuildMember(
-                            uuid(name + ":" + memberName),
-                            memberName,
-                            GuildRank.MEMBER
-                    )
-            );
+            members.add(new GuildMember(uuid(name + ":" + memberName), memberName, GuildRank.MEMBER));
         }
 
         /*
@@ -373,23 +164,9 @@ public class MemoryGuildSeeder {
          */
         String recruitName = name + "Recruit";
 
-        members.add(
-                new GuildMember(
-                        uuid(name + ":" + recruitName),
-                        recruitName,
-                        GuildRank.RECRUIT
-                )
-        );
+        members.add(new GuildMember(uuid(name + ":" + recruitName), recruitName, GuildRank.RECRUIT));
 
-        return new Guild(
-                id,
-                name,
-                ownerId,
-                members,
-                balance,
-                points,
-                new ArrayList<>()
-        );
+        return new Guild(id, name, ownerId, members, balance, points, new ArrayList<>());
     }
 
     /*
@@ -406,32 +183,11 @@ public class MemoryGuildSeeder {
      */
     private void configureBalancedPermissions(Guild guild) {
 
-        enable(
-                guild,
-                GuildRank.DEPUTY,
-                GuildPermission.BUILD,
-                GuildPermission.OPEN_CONTAINERS,
-                GuildPermission.RECRUIT,
-                GuildPermission.CLAIM_CHUNKS,
-                GuildPermission.KICK,
-                GuildPermission.MANAGE_WARP,
-                GuildPermission.BANK_AND_UPGRADES,
-                GuildPermission.RESERVE
-        );
+        enable(guild, GuildRank.DEPUTY, GuildPermission.BUILD, GuildPermission.OPEN_CONTAINERS, GuildPermission.RECRUIT, GuildPermission.CLAIM_CHUNKS, GuildPermission.KICK, GuildPermission.MANAGE_WARP, GuildPermission.BANK_AND_UPGRADES, GuildPermission.RESERVE);
 
-        enable(
-                guild,
-                GuildRank.MEMBER,
-                GuildPermission.BUILD,
-                GuildPermission.OPEN_CONTAINERS,
-                GuildPermission.RESERVE
-        );
+        enable(guild, GuildRank.MEMBER, GuildPermission.BUILD, GuildPermission.OPEN_CONTAINERS, GuildPermission.RESERVE);
 
-        enable(
-                guild,
-                GuildRank.RECRUIT,
-                GuildPermission.BUILD
-        );
+        enable(guild, GuildRank.RECRUIT, GuildPermission.BUILD);
     }
 
     /*
@@ -441,28 +197,11 @@ public class MemoryGuildSeeder {
      */
     private void configureStrictPermissions(Guild guild) {
 
-        enable(
-                guild,
-                GuildRank.DEPUTY,
-                GuildPermission.BUILD,
-                GuildPermission.OPEN_CONTAINERS,
-                GuildPermission.RECRUIT,
-                GuildPermission.KICK,
-                GuildPermission.RESERVE
-        );
+        enable(guild, GuildRank.DEPUTY, GuildPermission.BUILD, GuildPermission.OPEN_CONTAINERS, GuildPermission.RECRUIT, GuildPermission.KICK, GuildPermission.RESERVE);
 
-        enable(
-                guild,
-                GuildRank.MEMBER,
-                GuildPermission.BUILD,
-                GuildPermission.OPEN_CONTAINERS
-        );
+        enable(guild, GuildRank.MEMBER, GuildPermission.BUILD, GuildPermission.OPEN_CONTAINERS);
 
-        enable(
-                guild,
-                GuildRank.RECRUIT,
-                GuildPermission.BUILD
-        );
+        enable(guild, GuildRank.RECRUIT, GuildPermission.BUILD);
     }
 
     /*
@@ -472,50 +211,17 @@ public class MemoryGuildSeeder {
      */
     private void configurePermissivePermissions(Guild guild) {
 
-        enable(
-                guild,
-                GuildRank.DEPUTY,
-                GuildPermission.BUILD,
-                GuildPermission.OPEN_CONTAINERS,
-                GuildPermission.RECRUIT,
-                GuildPermission.CLAIM_CHUNKS,
-                GuildPermission.KICK,
-                GuildPermission.MANAGE_WARP,
-                GuildPermission.BANK_AND_UPGRADES,
-                GuildPermission.RESERVE
-        );
+        enable(guild, GuildRank.DEPUTY, GuildPermission.BUILD, GuildPermission.OPEN_CONTAINERS, GuildPermission.RECRUIT, GuildPermission.CLAIM_CHUNKS, GuildPermission.KICK, GuildPermission.MANAGE_WARP, GuildPermission.BANK_AND_UPGRADES, GuildPermission.RESERVE);
 
-        enable(
-                guild,
-                GuildRank.MEMBER,
-                GuildPermission.BUILD,
-                GuildPermission.OPEN_CONTAINERS,
-                GuildPermission.RECRUIT,
-                GuildPermission.CLAIM_CHUNKS,
-                GuildPermission.MANAGE_WARP,
-                GuildPermission.RESERVE
-        );
+        enable(guild, GuildRank.MEMBER, GuildPermission.BUILD, GuildPermission.OPEN_CONTAINERS, GuildPermission.RECRUIT, GuildPermission.CLAIM_CHUNKS, GuildPermission.MANAGE_WARP, GuildPermission.RESERVE);
 
-        enable(
-                guild,
-                GuildRank.RECRUIT,
-                GuildPermission.BUILD,
-                GuildPermission.OPEN_CONTAINERS
-        );
+        enable(guild, GuildRank.RECRUIT, GuildPermission.BUILD, GuildPermission.OPEN_CONTAINERS);
     }
 
-    private void enable(
-            Guild guild,
-            GuildRank rank,
-            GuildPermission... permissions
-    ) {
+    private void enable(Guild guild, GuildRank rank, GuildPermission... permissions) {
 
         for (GuildPermission permission : permissions) {
-            guild.setPermission(
-                    rank,
-                    permission,
-                    true
-            );
+            guild.setPermission(rank, permission, true);
         }
     }
 
@@ -526,9 +232,7 @@ public class MemoryGuildSeeder {
             guild.joinRequests().add(uuid("candidate:Leo"));
         });
 
-        source.findGuildById("eclipse").ifPresent(guild -> {
-            guild.joinRequests().add(uuid("candidate:Ezra"));
-        });
+        source.findGuildById("eclipse").ifPresent(guild -> guild.joinRequests().add(uuid("candidate:Ezra")));
 
         source.findGuildById("obsidian").ifPresent(guild -> {
             guild.joinRequests().add(uuid("candidate:Kira"));
@@ -536,9 +240,7 @@ public class MemoryGuildSeeder {
             guild.joinRequests().add(uuid("candidate:Milo"));
         });
 
-        source.findGuildById("solaris").ifPresent(guild -> {
-            guild.joinRequests().add(uuid("candidate:Ayla"));
-        });
+        source.findGuildById("solaris").ifPresent(guild -> guild.joinRequests().add(uuid("candidate:Ayla")));
 
         source.findGuildById("dragonspire").ifPresent(guild -> {
             guild.joinRequests().add(uuid("candidate:Theo"));
@@ -547,8 +249,6 @@ public class MemoryGuildSeeder {
     }
 
     private UUID uuid(String value) {
-        return UUID.nameUUIDFromBytes(
-                value.getBytes(StandardCharsets.UTF_8)
-        );
+        return UUID.nameUUIDFromBytes(value.getBytes(StandardCharsets.UTF_8));
     }
 }

@@ -1,7 +1,7 @@
 package fr.kilian.elestya.menu.guild;
 
 import fr.kilian.elestya.api.GuildSource;
-import fr.kilian.elestya.api.domain.GuildPermission;
+import fr.kilian.elestya.api.domain.guild.GuildPermission;
 import fr.kilian.elestya.menu.FormService;
 import org.bukkit.entity.Player;
 import org.geysermc.cumulus.form.SimpleForm;

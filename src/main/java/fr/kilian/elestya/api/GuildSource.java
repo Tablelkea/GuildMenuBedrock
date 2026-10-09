@@ -1,6 +1,6 @@
 package fr.kilian.elestya.api;
 
-import fr.kilian.elestya.api.domain.*;
+import fr.kilian.elestya.api.domain.guild.*;
 import fr.kilian.elestya.api.result.ActionResult;
 
 import java.util.List;

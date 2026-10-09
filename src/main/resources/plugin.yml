@@ -8,8 +8,16 @@ load: POSTWORLD
 authors: [ TablePasDroite ]
 
 commands:
-  guildmenu:
-    description: show form
+  guilde:
+    description: show guild menu
+    aliases:
+      - guildes
+  boutique:
+    description: show shop menu
+    aliases:
+      - shop
+  menu:
+    description: show main menu
 
 depend:
   - Geyser-Spigot

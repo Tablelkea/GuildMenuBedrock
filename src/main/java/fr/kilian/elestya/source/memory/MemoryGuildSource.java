@@ -1,7 +1,7 @@
 package fr.kilian.elestya.source.memory;
 
 import fr.kilian.elestya.api.GuildSource;
-import fr.kilian.elestya.api.domain.*;
+import fr.kilian.elestya.api.domain.guild.*;
 import fr.kilian.elestya.api.result.ActionResult;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -590,11 +590,8 @@ public class MemoryGuildSource implements GuildSource {
 
         Optional<Guild> optionalGuild = findGuildByPlayer(playerId);
 
-        if (optionalGuild.isEmpty()) {
-            return false;
-        }
+        return optionalGuild.map(guild -> guild.hasPermission(playerId, permission)).orElse(false);
 
-        return optionalGuild.get().hasPermission(playerId, permission);
     }
 
     @Override
@@ -643,11 +640,8 @@ public class MemoryGuildSource implements GuildSource {
 
         Optional<Guild> optionalGuild = findGuildById(guildId);
 
-        if (optionalGuild.isEmpty()) {
-            return List.of();
-        }
+        return optionalGuild.map(guild -> guild.joinRequests().stream().map(playerId -> new JoinRequest(playerId, getPlayerName(playerId))).toList()).orElseGet(List::of);
 
-        return optionalGuild.get().joinRequests().stream().map(playerId -> new JoinRequest(playerId, getPlayerName(playerId))).toList();
     }
 
     private String getPlayerName(UUID playerId) {
@@ -906,11 +900,8 @@ public class MemoryGuildSource implements GuildSource {
             invitations.remove(playerId);
         }
 
-        if (optionalGuild.isEmpty()) {
-            return ActionResult.success("L'invitation a été supprimée.");
-        }
+        return optionalGuild.map(guild -> ActionResult.success("Vous avez refusé l'invitation de " + guild.name() + ".")).orElseGet(() -> ActionResult.success("L'invitation a été supprimée."));
 
-        return ActionResult.success("Vous avez refusé l'invitation de " + optionalGuild.get().name() + ".");
     }
 
     @Override

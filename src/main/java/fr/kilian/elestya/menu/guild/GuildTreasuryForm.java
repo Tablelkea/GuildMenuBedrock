@@ -1,10 +1,10 @@
 package fr.kilian.elestya.menu.guild;
 
 import fr.kilian.elestya.api.GuildSource;
-import fr.kilian.elestya.api.domain.Guild;
-import fr.kilian.elestya.api.domain.GuildShopInfo;
-import fr.kilian.elestya.api.domain.GuildShopItem;
-import fr.kilian.elestya.api.domain.GuildTreasuryInfo;
+import fr.kilian.elestya.api.domain.guild.Guild;
+import fr.kilian.elestya.api.domain.guild.GuildShopInfo;
+import fr.kilian.elestya.api.domain.guild.GuildShopItem;
+import fr.kilian.elestya.api.domain.guild.GuildTreasuryInfo;
 import fr.kilian.elestya.menu.FormService;
 import org.bukkit.entity.Player;
 import org.geysermc.cumulus.form.SimpleForm;

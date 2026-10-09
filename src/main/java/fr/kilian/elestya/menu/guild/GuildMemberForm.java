@@ -1,10 +1,10 @@
 package fr.kilian.elestya.menu.guild;
 
 import fr.kilian.elestya.api.GuildSource;
-import fr.kilian.elestya.api.domain.Guild;
-import fr.kilian.elestya.api.domain.GuildMember;
-import fr.kilian.elestya.api.domain.GuildPermission;
-import fr.kilian.elestya.api.domain.GuildRank;
+import fr.kilian.elestya.api.domain.guild.Guild;
+import fr.kilian.elestya.api.domain.guild.GuildMember;
+import fr.kilian.elestya.api.domain.guild.GuildPermission;
+import fr.kilian.elestya.api.domain.guild.GuildRank;
 import fr.kilian.elestya.api.result.ActionResult;
 import fr.kilian.elestya.menu.FormService;
 import org.bukkit.Bukkit;
